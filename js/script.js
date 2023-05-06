@@ -241,7 +241,7 @@ async function displaySlider(){
 }
 
 function initSwiper(){
-  const swiper = new Swiper('.swipper', {
+  const swiper = new Swiper('.swiper', {
     slidesPerView: 1,
     spaceBetween: 30,
     freeMode: true,
