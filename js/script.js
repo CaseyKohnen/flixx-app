@@ -1,5 +1,11 @@
 const global = {
     curretPage: window.location.pathname,
+    search: {
+      term: '',
+      type: '',
+      page: 1,
+      totalPages: 1
+    }
 };
 
 async function displayPopularMovies(){
@@ -219,6 +225,19 @@ function displayBackgroundImage(type, backgroundPath){
   }
 }
 
+
+async function search(){
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  global.search.type = urlParams.get('type');
+  global.search.term = urlParams.get('search-term');
+
+  if(global.search.term !== '' && glabal.search.term !== null){
+
+  }
+}
+
 async function displaySlider(){
   const {results} = await fetchAPIData('movie/now_playing');
 
@@ -297,6 +316,15 @@ function highlightActiveLink(){
     })
 }
 
+function showAlert(message,className){
+  const alertEl = document.createElement('div');
+  alertEl.classList.add('alert', className);
+  alertEl.appendChild(document.createTextNode(message));
+  document.querySelector('#alert').appendChild(alertEl);
+
+  setTimeout(() => alertEl.remove(), 3000);
+}
+
 function addCommasToNumber(number){
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
@@ -319,7 +347,7 @@ function init(){
             displayShowDetails();
             break;
         case '/search.html':
-            console.log('Search');
+            search();
             break;
     }
 
