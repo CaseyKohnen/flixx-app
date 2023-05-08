@@ -5,6 +5,10 @@ const global = {
       type: '',
       page: 1,
       totalPages: 1
+    },
+    api: {
+      apiKey: '2d3dffeef2ab4141e45e743e98bab472',
+      apiUrl: 'https://api.themoviedb.org/3/'
     }
 };
 
@@ -233,9 +237,50 @@ async function search(){
   global.search.type = urlParams.get('type');
   global.search.term = urlParams.get('search-term');
 
-  if(global.search.term !== '' && glabal.search.term !== null){
-
+  if(global.search.term !== '' && global.search.term !== null){
+    const {results, totalPages, page} = await searchAPIData();
+      if(results.length === 0){
+        showAlert('No results found');
+        return;
+      }
+      displaySearchResults(results);
+      document.querySelector('#search-term').valut = '';
+  } else {
+    showAlert('Please enter a search term')
   }
+}
+
+function displaySearchResults(results){
+  results.forEach((result) =>{
+    const div = document.createElement('div');
+    div.classList.add('card');
+    div.innerHTML = `
+    <div class="card">
+      <a href="${global.search.type}-details.html?id=${result.id}">
+        ${
+            result.poster_path
+            ?`<img
+            src="https://image.tmdb.org/t/p/w500/${result.poster_path}"
+            class="card-img-top"
+            alt="${global.search.type === 'movie' ? result.title : result.name}"
+          />` : `<img
+          src="images/no-image.jpg"
+          class="card-img-top"
+          alt="${result.title}"
+        />`
+        }
+      </a>
+      <div class="card-body">
+        <h5 class="card-title">${global.search.type === 'movie' ? result.title : result.name}</h5>
+        <p class="card-text">
+          <small class="text-muted">Release: ${global.search.type === 'movie' ? result.release_date : result.first_air_date}</small>
+        </p>
+      </div>
+    </div>
+    `;
+
+document.querySelector('#search-results').appendChild(div)
+});
 }
 
 async function displaySlider(){
@@ -285,8 +330,8 @@ function initSwiper(){
 
 //Fetch Data
 async function fetchAPIData(endpoint){
-    const API_KEY = '2d3dffeef2ab4141e45e743e98bab472';
-    const API_URL = 'https://api.themoviedb.org/3/';
+    const API_KEY = global.api.apiKey;
+    const API_URL = global.api.apiUrl;
 
     showSpinner();
 
@@ -296,6 +341,20 @@ async function fetchAPIData(endpoint){
     hideSpinner();
 
     return data;
+}
+
+async function searchAPIData(endpoint){
+  const API_KEY = global.api.apiKey;
+  const API_URL = global.api.apiUrl;
+
+  showSpinner();
+
+  const response = await fetch(`${API_URL}search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}`);
+  const data = await response.json();
+
+  hideSpinner();
+
+  return data;
 }
 
 function showSpinner(){
@@ -316,7 +375,7 @@ function highlightActiveLink(){
     })
 }
 
-function showAlert(message,className){
+function showAlert(message,className = 'error'){
   const alertEl = document.createElement('div');
   alertEl.classList.add('alert', className);
   alertEl.appendChild(document.createTextNode(message));
